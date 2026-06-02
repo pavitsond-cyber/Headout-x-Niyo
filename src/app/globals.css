@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8F6FF;
+  --foreground: #2d2d2d;
+  --brand-purple: #8000FF;
+  /* Aliases that point to the CSS vars injected by next/font/local in layout.tsx */
+  --font-display: var(--font-halyard-display);
+  --font-text:    var(--font-halyard-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-halyard-text), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* All headings default to Halyard Display */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-halyard-display), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Utility: 2-line text clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Hero animations ─────────────────────────────────────────────────────── */
+
+@keyframes slideOutUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-120%); }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(120%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes busHop {
+  0%   { transform: translateY(0)     scaleY(1);    }
+  8%   { transform: translateY(-22px) scaleY(0.97); }
+  22%  { transform: translateY(3px)   scaleY(1.04); }
+  32%  { transform: translateY(-11px) scaleY(0.99); }
+  44%  { transform: translateY(1px)   scaleY(1.02); }
+  52%  { transform: translateY(0)     scaleY(1);    }
+  100% { transform: translateY(0)     scaleY(1);    }
+}
+
+@keyframes scrollCityscape {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
