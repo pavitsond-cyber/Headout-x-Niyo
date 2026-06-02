@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Headout × Niyo — Hop-on Hop-off Landing Page
 
-## Getting Started
+A pixel-close replica of the Headout Hop-on Hop-off landing page, built as a co-branded experience for Niyo Global Card users.
 
-First, run the development server:
+**Original page:** https://www.headout.com/hop-on-hop-off-tours/
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Tech Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI Library | React 19 |
+| Styling | Tailwind CSS v4 |
+| Language | TypeScript |
+
+---
+
+## How data is fetched
+
+All product data is pulled at build/request time from the **Headout public API v6**:
+
+```
+GET https://api.headout.com/api/v6/tour-groups/?currency=INR&ids[]=<tgid1>,<tgid2>,...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Flow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. A curated list of Tour Group IDs (TGIDs) is maintained in `src/data/cities.ts` — one global "all" list plus per-city lists for the destination filter tabs.
+2. `src/lib/api.ts` unions all TGIDs, builds the request URL, and fetches from the API with **1-hour ISR revalidation** (`next: { revalidate: 3600 }`).
+3. The API response (`tourGroups[]`) is mapped into a typed `Product` shape (title, city, image, rating, price, PDP URL) and passed down as props.
+4. Filtering by city happens entirely **client-side** inside `TopDestinations` — no extra API calls on tab switch.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Key fields consumed from the API
 
-## Learn More
+| API field | Used as |
+|---|---|
+| `id` | Internal key / TGID match |
+| `name` | Product card title |
+| `cityDisplayName` | City label on card |
+| `imageUrl` | Card thumbnail |
+| `averageRating` / `ratingCount` | Star rating display |
+| `listingPrice.finalPrice` | Displayed price (INR) |
+| `listingPrice.originalPrice` | Strikethrough price (if discounted) |
+| `tourGroupUrl` | PDP deep-link (prefixed with `headout.com`) |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout, fonts, global bg
+│   ├── page.tsx            # Server component — fetches products, composes page
+│   └── globals.css         # CSS variables, keyframe animations
+├── components/
+│   ├── Hero.tsx            # First fold: animated headline + cityscape + bus
+│   ├── BusSvg.tsx          # Inline bus SVG (preserves mix-blend-mode)
+│   ├── TopDestinations.tsx # Destination tabs + product grid section
+│   ├── CityCarousel.tsx    # Horizontally scrollable city pill tabs
+│   ├── ProductGrid.tsx     # Responsive 4-col product grid
+│   ├── ProductCard.tsx     # Individual product card
+│   ├── Reviews.tsx         # Testimonials / review cards section
+│   ├── ReviewCard.tsx      # Single review card
+│   ├── Faq.tsx             # Accordion FAQ section
+│   └── Footer.tsx          # Full footer with nav, social, legal
+├── data/
+│   ├── cities.ts           # TGID lists and city metadata
+│   ├── faqs.ts             # Static FAQ content
+│   ├── footer.ts           # Footer nav columns and social links
+│   └── reviews.ts          # Static review/testimonial data
+├── lib/
+│   ├── api.ts              # Headout API fetch + data mapping
+│   └── constants.ts        # Shared brand colours and URLs
+└── types.ts                # Shared TypeScript types (Product, etc.)
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Running locally
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
