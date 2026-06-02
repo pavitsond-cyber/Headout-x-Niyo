@@ -3,6 +3,7 @@
 A pixel-close replica of the Headout Hop-on Hop-off landing page, built as a co-branded experience for Niyo Global Card users.
 
 **Original page:** https://goniyo.headout.com/hop-on-hop-off-special
+**Replicated page:** https://headout-x-niyo.vercel.app/
 
 ---
 
